@@ -1,7 +1,6 @@
 import argparse
 import logging
 import json
-import os
 import sys
 from typing import List, Dict, Any
 from packaging import requirements
@@ -149,6 +148,19 @@ class DependencyVulnerabilityChecker:
             raise
 
 
+    @staticmethod
+    def _concrete_version(specifier: str):
+        # load_dependencies stores the requirement specifier (">=2.0",
+        # "==1.0"), not a version. OSV only answers for one concrete
+        # version, so only a single == pin can be sent; anything looser
+        # has no honest answer from a per version query.
+        text = (specifier or "").strip()
+        if text.startswith("==") and "," not in text:
+            return text[2:].strip().rstrip(".*") or None
+        if text and all(c.isalnum() or c in ".-_+" for c in text):
+            return text
+        return None
+
     def _check_vulnerabilities_osv(self, package_name: str, package_version: str) -> List[Dict[str, str]]:
         """
         Checks for vulnerabilities using the OSV API.
@@ -160,11 +172,16 @@ class DependencyVulnerabilityChecker:
         Returns:
             A list of vulnerabilities (dictionaries) found for the given package and version.
         """
+        version = self._concrete_version(package_version)
+        if version is None:
+            logging.warning(f"Skipping OSV check for {package_name}: '{package_version}' is a range, not a pinned version.")
+            return []
         url = OSV_API_BASE_URL
         payload = {
             "package": {
                 "name": package_name,
-                "version": package_version
+                "ecosystem": "PyPI",
+                "version": version
             }
         }
         try:
@@ -242,6 +259,10 @@ def main() -> None:
         parser = setup_argparse()
         args = parser.parse_args()
 
+        # The stored license policy is not evaluated: this code has no
+        # license data source for a package, so claiming a license verdict
+        # would be inventing one. Say so on every run instead.
+        logging.warning("License policy is accepted but not evaluated; the report covers vulnerabilities only.")
         checker = DependencyVulnerabilityChecker(args.dependency_file, args.license_policy, args.vulnerability_db)
         checker.load_dependencies()
         vulnerable_dependencies = checker.check_vulnerabilities()
