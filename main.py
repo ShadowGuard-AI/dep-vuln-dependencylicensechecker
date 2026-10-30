@@ -13,6 +13,10 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 NVD_API_BASE_URL = "https://services.nvd.nist.gov/rest/json/cves/2.0"
 OSV_API_BASE_URL = "https://api.osv.dev/v1/query"
 
+
+class UnpinnedVersionError(Exception):
+    """Raised when a dependency has no exact version an OSV query can use."""
+
 class DependencyVulnerabilityChecker:
     """
     A tool to analyze project dependencies, identify vulnerabilities, and flag license incompatibilities.
@@ -31,6 +35,11 @@ class DependencyVulnerabilityChecker:
         self.license_policy = license_policy
         self.vulnerability_db = vulnerability_db
         self.dependencies: List[Dict[str, str]] = []
+        # Completed and failed check counts. Without them a run where
+        # every query failed (or every version was skipped as unpinned)
+        # reported "No vulnerabilities found." and exited 0.
+        self.check_failures = 0
+        self.check_successes = 0
 
     def load_dependencies(self) -> None:
         """
@@ -45,7 +54,7 @@ class DependencyVulnerabilityChecker:
                         if line and not line.startswith("#"):
                             try:
                                 req = requirements.Requirement(line)
-                                self.dependencies.append({"name": req.name, "version": str(req.specifier)})
+                                self.dependencies.append({"name": req.name, "version": str(req.specifier), "ecosystem": "PyPI"})
                             except Exception as e:
                                 logging.warning(f"Could not parse dependency line: {line}. Error: {e}")
             elif self.dependency_file.endswith(".json"): #package.json
@@ -53,10 +62,10 @@ class DependencyVulnerabilityChecker:
                     data = json.load(f)
                 if "dependencies" in data:
                     for name, version in data["dependencies"].items():
-                        self.dependencies.append({"name": name, "version": version})
+                        self.dependencies.append({"name": name, "version": version, "ecosystem": "npm"})
                 if "devDependencies" in data:
                     for name, version in data["devDependencies"].items():
-                        self.dependencies.append({"name": name, "version": version})
+                        self.dependencies.append({"name": name, "version": version, "ecosystem": "npm"})
 
 
             else:
@@ -82,7 +91,7 @@ class DependencyVulnerabilityChecker:
                 if self.vulnerability_db == "nvd":
                     vulnerabilities = self._check_vulnerabilities_nvd(dep["name"], dep["version"])
                 elif self.vulnerability_db == "osv":
-                    vulnerabilities = self._check_vulnerabilities_osv(dep["name"], dep["version"])
+                    vulnerabilities = self._check_vulnerabilities_osv(dep)
                 else:
                     raise ValueError(f"Unsupported vulnerability database: {self.vulnerability_db}")
 
@@ -92,8 +101,15 @@ class DependencyVulnerabilityChecker:
                         "version": dep["version"],
                         "vulnerabilities": vulnerabilities
                     })
+            except UnpinnedVersionError as e:
+                # Not a failure and not a check: nothing was queried, so
+                # this dependency must not count toward a completed run.
+                logging.warning(str(e))
             except Exception as e:
+                self.check_failures += 1
                 logging.error(f"Error checking vulnerabilities for {dep['name']}: {e}")
+            else:
+                self.check_successes += 1
 
         return vulnerable_dependencies
 
@@ -108,7 +124,9 @@ class DependencyVulnerabilityChecker:
         Returns:
             A list of vulnerabilities (dictionaries) found for the given package and version.
         """
-        url = f"{NVD_API_BASE_URL}?keyword={package_name}"
+        # NVD API 2.0 names this parameter keywordSearch; the old
+        # keyword= form is not the documented parameter.
+        url = f"{NVD_API_BASE_URL}?keywordSearch={package_name}"
         try:
             response = requests.get(url, timeout=10)  # Added timeout for network requests
             response.raise_for_status()  # Raise HTTPError for bad responses (4xx or 5xx)
@@ -161,26 +179,29 @@ class DependencyVulnerabilityChecker:
             return text
         return None
 
-    def _check_vulnerabilities_osv(self, package_name: str, package_version: str) -> List[Dict[str, str]]:
+    def _check_vulnerabilities_osv(self, dep: Dict[str, str]) -> List[Dict[str, str]]:
         """
         Checks for vulnerabilities using the OSV API.
 
         Args:
-            package_name: Name of the package.
-            package_version: Version of the package.
+            dep: Dependency dict with name, version specifier, and ecosystem.
 
         Returns:
             A list of vulnerabilities (dictionaries) found for the given package and version.
         """
-        version = self._concrete_version(package_version)
+        package_name = dep["name"]
+        version = self._concrete_version(dep["version"])
         if version is None:
-            logging.warning(f"Skipping OSV check for {package_name}: '{package_version}' is a range, not a pinned version.")
-            return []
+            raise UnpinnedVersionError(
+                f"Skipping OSV check for {package_name}: '{dep['version']}' is a range, not a pinned version."
+            )
         url = OSV_API_BASE_URL
         payload = {
             "package": {
                 "name": package_name,
-                "ecosystem": "PyPI",
+                # The ecosystem follows the manifest the dependency came
+                # from; package.json entries queried as PyPI match nothing.
+                "ecosystem": dep.get("ecosystem", "PyPI"),
                 "version": version
             }
         }
@@ -223,7 +244,10 @@ class DependencyVulnerabilityChecker:
             A string containing the report.
         """
         if not vulnerable_dependencies:
-            return "No vulnerabilities found."
+            report = "No vulnerabilities found."
+            if self.check_failures:
+                report += f"\nWarning: {self.check_failures} dependency check(s) failed; this result is incomplete."
+            return report
 
         report = "Vulnerability Report:\n"
         for dep in vulnerable_dependencies:
@@ -278,6 +302,13 @@ def main() -> None:
                 print(report)
         else:
             print(report)
+
+        # A run where no check completed (every query failed, or every
+        # version was skipped as unpinned) produced no evidence either
+        # way; it must not exit 0 behind a clean-sounding report.
+        if checker.dependencies and checker.check_successes == 0:
+            logging.error("No dependency check completed; the report above is not a clean result.")
+            sys.exit(1)
 
     except ValueError as e:
         logging.error(e)
