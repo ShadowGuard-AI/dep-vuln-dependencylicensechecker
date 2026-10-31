@@ -124,6 +124,11 @@ class DependencyVulnerabilityChecker:
         Returns:
             A list of vulnerabilities (dictionaries) found for the given package and version.
         """
+        concrete_version = self._concrete_version(package_version)
+        if concrete_version is None:
+            raise UnpinnedVersionError(
+                f"Skipping NVD check for {package_name}: '{package_version}' is a range, not a pinned version."
+            )
         # NVD API 2.0 names this parameter keywordSearch; the old
         # keyword= form is not the documented parameter.
         url = f"{NVD_API_BASE_URL}?keywordSearch={package_name}"
@@ -143,8 +148,14 @@ class DependencyVulnerabilityChecker:
                                     if "cpeMatch" in node:
                                         for cpe in node["cpeMatch"]:
                                             if package_name in cpe["criteria"]:
-                                                #Simple version check. Enhance with semver if needed.
-                                                if package_version in cpe["criteria"]:
+                                                # CPE criteria is colon separated and
+                                                # field 5 is the version, a bare version
+                                                # with no specifier prefix. Compare the
+                                                # concrete version to that field, not the
+                                                # raw specifier text to the whole string.
+                                                criteria_parts = cpe["criteria"].split(":")
+                                                criteria_version = criteria_parts[5] if len(criteria_parts) > 5 else ""
+                                                if concrete_version == criteria_version:
                                                     vulnerability = {
                                                         "cve_id": cve["id"],
                                                         "description": cve["descriptions"][0]["value"],
@@ -289,6 +300,12 @@ def main() -> None:
         logging.warning("License policy is accepted but not evaluated; the report covers vulnerabilities only.")
         checker = DependencyVulnerabilityChecker(args.dependency_file, args.license_policy, args.vulnerability_db)
         checker.load_dependencies()
+        if not checker.dependencies:
+            # Nothing was parsed, so nothing can be checked. A clean line
+            # here would claim a result the run never produced.
+            logging.error("No dependencies were parsed/found to check.")
+            print("No dependencies were parsed/found to check.")
+            sys.exit(1)
         vulnerable_dependencies = checker.check_vulnerabilities()
         report = checker.generate_report(vulnerable_dependencies)
 
