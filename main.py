@@ -131,6 +131,12 @@ class DependencyVulnerabilityChecker:
             )
         # NVD API 2.0 names this parameter keywordSearch; the old
         # keyword= form is not the documented parameter.
+        # The query is a keyword search, not a package lookup: the
+        # version filtering happens locally below over whatever the
+        # first page of results holds, and no further page is ever
+        # requested. A package whose CVEs fall past that page, or
+        # whose CPE criteria spell the name differently than the
+        # manifest does, reads as having no vulnerabilities.
         url = f"{NVD_API_BASE_URL}?keywordSearch={package_name}"
         try:
             response = requests.get(url, timeout=10)  # Added timeout for network requests
@@ -185,6 +191,11 @@ class DependencyVulnerabilityChecker:
         # has no honest answer from a per version query.
         text = (specifier or "").strip()
         if text.startswith("==") and "," not in text:
+            # rstrip removes every trailing dot and asterisk, so a
+            # wildcard pin like ==1.0.* comes out as the concrete
+            # version 1.0 and is queried as if the manifest had pinned
+            # exactly that. A wildcard is a range, and this quietly
+            # narrows it to its first version.
             return text[2:].strip().rstrip(".*") or None
         if text and all(c.isalnum() or c in ".-_+" for c in text):
             return text
