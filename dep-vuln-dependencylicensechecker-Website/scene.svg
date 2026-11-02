@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 300" role="img" aria-label="The anatomy theatre in three bands: settled jars and a slow brightening at the high windows in the far band, a bench brush sweeping in short strokes beside a microscope whose mirror tips once while the wax model lies still in its case in the middle band, and a label tag swinging a few degrees on its string and settling in the near band">
+<rect width="900" height="300" fill="#f7f7f2"/>
+<g>
+<rect x="30" y="14" width="52" height="86" fill="#e6eae2" stroke="#b06e3c" stroke-width="3"/>
+<rect x="96" y="14" width="52" height="86" fill="#e6eae2" stroke="#b06e3c" stroke-width="3"/>
+<rect x="30" y="14" width="118" height="86" fill="#f5f5eb" opacity="0">
+<animate attributeName="opacity" values="0; 0.55; 0" dur="16s" repeatCount="indefinite"/></rect>
+<g stroke="#545e6e" stroke-width="10"><line x1="180" y1="96" x2="880" y2="72"/><line x1="180" y1="72" x2="880" y2="44"/></g>
+<g>
+<rect x="700" y="30" width="30" height="44" rx="5" fill="#eef0ea" stroke="#545e6e" stroke-width="2"/>
+<rect x="703" y="50" width="24" height="21" fill="#7c3aa8" opacity="0.65"/>
+<rect x="742" y="30" width="30" height="44" rx="5" fill="#eef0ea" stroke="#545e6e" stroke-width="2"/>
+<rect x="745" y="50" width="24" height="21" fill="#a89e78" opacity="0.65"/>
+<rect x="784" y="30" width="30" height="44" rx="5" fill="#eef0ea" stroke="#545e6e" stroke-width="2"/>
+<rect x="787" y="50" width="24" height="21" fill="#8c968c" opacity="0.65"/>
+</g>
+</g>
+<g>
+<rect x="60" y="196" width="780" height="14" fill="#b06e3c"/>
+<rect x="60" y="210" width="780" height="34" fill="#d8d0c0"/>
+<g>
+<rect x="120" y="168" width="46" height="10" fill="#a89e78"/>
+<g fill="#8a7a5c"><ellipse cx="128" cy="164" rx="3" ry="2"/><ellipse cx="140" cy="166" rx="3" ry="2"/><ellipse cx="152" cy="164" rx="3" ry="2"/>
+<animateTransform attributeName="transform" type="translate" values="0 0; 52 0; 52 0; 104 0; 104 0; 0 0" keyTimes="0; 0.18; 0.4; 0.58; 0.8; 1" dur="12s" repeatCount="indefinite"/></g>
+<g>
+<rect x="96" y="150" width="10" height="22" fill="#b06e3c"/>
+<g stroke="#6d5a3a" stroke-width="2"><line x1="94" y1="150" x2="86" y2="168"/><line x1="101" y1="150" x2="101" y2="170"/><line x1="108" y1="150" x2="116" y2="168"/></g>
+<animateTransform attributeName="transform" type="translate" values="0 0; 52 0; 52 0; 104 0; 104 0; 0 0" keyTimes="0; 0.18; 0.4; 0.58; 0.8; 1" dur="12s" repeatCount="indefinite"/></g>
+</g>
+<g>
+<polygon points="300,182 318,128 336,182" fill="#3a342c"/>
+<line x1="330" y1="136" x2="362" y2="106" stroke="#b06e3c" stroke-width="6"/>
+<g>
+<ellipse cx="368" cy="100" rx="11" ry="8" fill="#eceee6" stroke="#b06e3c" stroke-width="2"/>
+<animateTransform attributeName="transform" type="rotate" values="0 368 100; 0 368 100; 9 368 100; 9 368 100; 0 368 100" keyTimes="0; 0.3; 0.42; 0.7; 1" dur="12s" repeatCount="indefinite"/></g>
+</g>
+<g>
+<rect x="470" y="128" width="300" height="66" fill="none" stroke="#b06e3c" stroke-width="3"/>
+<rect x="486" y="168" width="268" height="14" fill="#eeeee8" stroke="#545e6e" stroke-width="1.5"/>
+<ellipse cx="516" cy="146" rx="17" ry="13" fill="#e8cdb4"/>
+<g fill="#7c3aa8"><rect x="566" y="140" width="20" height="16"/><rect x="588" y="140" width="20" height="16" fill="#582680"/><rect x="610" y="140" width="20" height="16" fill="#965cbe"/><rect x="632" y="140" width="20" height="16"/></g>
+<rect x="540" y="140" width="26" height="16" fill="#e2c4ac"/>
+<rect x="652" y="142" width="86" height="12" fill="#e2c4ac"/>
+</g>
+</g>
+<g>
+<line x1="120" y1="248" x2="780" y2="248" stroke="#282e38" stroke-width="2"/>
+<g>
+<line x1="420" y1="248" x2="420" y2="264" stroke="#282e38" stroke-width="2"/>
+<g>
+<rect x="404" y="264" width="32" height="28" fill="#f7f7f2" stroke="#545e6e" stroke-width="2"/>
+<circle cx="420" cy="270" r="3" fill="#b06e3c"/>
+<animateTransform attributeName="transform" type="rotate" values="0 420 248; 0 420 248; 4 420 248; -2 420 248; 1 420 248; 0 420 248" keyTimes="0; 0.2; 0.3; 0.45; 0.6; 1" dur="12s" repeatCount="indefinite"/></g>
+</g>
+<g>
+<line x1="520" y1="248" x2="520" y2="264" stroke="#282e38" stroke-width="2"/>
+<rect x="504" y="264" width="32" height="28" fill="#f7f7f2" stroke="#545e6e" stroke-width="2"/>
+<circle cx="520" cy="270" r="3" fill="#b06e3c"/>
+</g>
+</g>
+</svg>

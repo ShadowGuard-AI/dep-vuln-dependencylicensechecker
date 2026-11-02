@@ -1,166 +1,53 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Dep Vuln Dependencylicensechecker: what it is, how it runs, where it stops</title>
-<meta name="description" content="Note on versions: dependency entries are stored as requirement specifiers. The OSV check needs one concrete version, so only a pinned entry (a single ">
-<style>
-:root {
-  --bg: #0a0e1a; --panel: #11182c; --ink: #e9edf5;
-  --mut: #16203b;
-  --acc: #ff8c42; --acc2: #ffc46b;
-  --line: #11182c;
-}
-* { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--ink);
-  font-family: 'Book Antiqua', Georgia, serif; line-height: 1.55; }
-code, pre, .mono { font-family: 'Andale Mono', monospace; }
-a { color: var(--acc2); }
-.hero { padding: 3rem 6vw 1rem; }
-.hero img.banner { width: 100%; height: auto; border: 1px solid var(--line);
-  border-radius: 10px; }
-.logo { width: 92px; height: 92px; border-radius: 18px;
-  border: 1px solid var(--line); }
-h1 { font-size: 2.4rem; margin: 0.4em 0 0.1em; }
-h2 { border-bottom: 2px solid var(--acc); padding-bottom: 0.2em;
-  margin-top: 2em; }
-.lede { font-size: 1.15rem; max-width: 62ch; }
-main { padding: 0 6vw 3rem; max-width: 1180px; margin: 0 auto; }
-.grid { display: grid; gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
-.card { background: var(--panel); border: 1px solid var(--line);
-  border-radius: 12px; padding: 1rem 1.2rem; }
-.card.pop { animation: rise 0.7s ease both; }
-@keyframes rise { from { opacity: 0; transform: translateY(14px); }
-  to { opacity: 1; transform: none; } }
-pre.code { background: #101014; color: #e8e6df; padding: 1rem 1.2rem;
-  border-radius: 12px; overflow-x: auto; font-size: 0.86rem;
-  border-left: 5px solid var(--acc); }
-table { border-collapse: collapse; width: 100%; }
-td, th { border-bottom: 1px solid var(--line); padding: 0.45rem 0.6rem;
-  text-align: left; }
-.shots { display: grid; gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
-.shots img { width: 100%; height: auto; border: 1px solid var(--line);
-  border-radius: 10px; background: #f4f1e8; }
-footer { padding: 2rem 6vw; border-top: 1px solid var(--line);
-  color: var(--mut); }
-.rail { display: flex; gap: 1.2rem; align-items: flex-start; }
-.rail nav { position: sticky; top: 1rem; min-width: 180px; }
-@media (max-width: 760px) { .rail { flex-direction: column; }
-  .rail nav { position: static; } }
-@media (prefers-reduced-motion: reduce) {
-  .card.pop { animation: none; } * { scroll-behavior: auto; } }
-</style>
-</head>
-<body class="layout-ledger">
-<!-- This page exists for dep-vuln-dependencylicensechecker alone: the layout (ledger),
-     the colors, and the type were picked for this project, not
-     shared with the other project pages. The code block below is
-     copied from the file it names, line for line. If it looks
-     plain, that is because the project is plain, and I would
-     rather the page match the project than dress it up. The one
-     thing I will not do here is oversell: what this project does
-     not do is stated on the page, not hidden from it. -->
-<header class="hero">
-  <img class="logo" src="assets/logo.png" alt="Dep Vuln Dependencylicensechecker logo">
-  <img class="banner" src="assets/banner.png" alt="">
-  <h1>Dep Vuln Dependencylicensechecker</h1>
-  <p class="mono"><a href="https://github.com/ShadowGuard-AI/dep-vuln-dependencylicensechecker">github.com/ShadowGuard-AI/dep-vuln-dependencylicensechecker</a></p>
-</header>
+<!doctype html><html lang="en-GB"><head><meta charset="utf-8"><title>dep-vuln-dependencylicensechecker: Anatomy Theatre of the Wax Models</title>
+<style>@font-face{font-family:Disp;src:url("fonts/BpmfIansui.ttf")}@font-face{font-family:Text;src:url("fonts/Barlow.ttf")}
+body{background:#f7f7f2;font-family:Text,sans-serif;color:#20242a;margin:0}main{max-width:920px;margin:0 auto;padding:28px}
+h1,h2,h3{font-family:Disp,serif;color:#7c3aa8;border-bottom:3px solid #b06e3c;padding-bottom:6px}
+section{background:#f7f7f2;padding:18px 22px;margin:16px 0;border:1px solid #545e6e;border-top:6px solid #b06e3c;box-shadow:0 6px 0 #e3e6df}
+img{max-width:100%}button{background:#eef0ea;color:#20242a;border:1px solid #b06e3c;border-bottom:4px solid #545e6e;padding:12px 18px;margin:4px;font-family:Disp,serif}
+button:focus{outline:3px double #b06e3c}pre{white-space:pre-wrap;font-family:Text,sans-serif;background:#eef0ea;padding:14px}
+.tag{display:inline-block;background:#f7f7f2;border:1px solid #545e6e;padding:2px 8px;font-size:13px}</style></head><body><main>
+<img src="intro-banner.png" alt="Introduction banner: the empty theatre before any name is given">
+<h1>dep-vuln-dependencylicensechecker: Anatomy Theatre of the Wax Models</h1>
+<img src="logo.png" alt="Logo"><img src="banner.png" alt="Wordmark banner">
+<img src="scene.svg" alt="Animated scene in three bands">
+<div><button type="button">Check These Dependencies</button><button type="button">Save the Report</button><button type="button">Read the Bench Notes</button></div>
+<h3>Vulnerabilities Only</h3><h3>No Licence Verdict</h3><h3>One Database Per Run</h3><h3>Pinned Versions or Nothing</h3><h3>A Clean Line Must Be Earned</h3>
+<section><h2>Plate one: scope</h2><p>The program reads a dependency manifest, asks one chosen vulnerability database about each entry it can check, and writes a report of matches. Two manifest kinds are read: a requirements style text file, and a package.json file. Two databases are offered: NVD and OSV. One run consults one database, never both.</p></section>
+<section><h2>Plate two: the licence truth</h2><p><span class="tag">No Licence Verdict</span></p><p>A licence policy option exists. It defaults to MIT. It is accepted, stored, and warned about on every single run, and it is never evaluated, because the code holds no licence data for any package. The report therefore covers vulnerabilities only. Any wording that suggests a licence verdict is a defect, not a feature.</p></section>
+<section><h2>Plate three: what a machine needs</h2><p>Python 3. The packaging package at 23.0 or later. The requests package at 2.28.0 or later. Network reach to the chosen database, with ten seconds allowed per query. The README prints no install step for those two packages, so this site supplies the missing line: install the requirements file after cloning.</p></section>
+<section><h2>Plate four: install, corrected</h2><p>Clone the repository, then move into the directory, then install the requirements:</p><pre>git clone https://github.com/ShadowGuard-AI/dep-vuln-dependencylicensechecker.git
+cd dep-vuln-dependencylicensechecker
+pip install -r requirements.txt</pre><p>The clone line as printed in the README names a different organisation and would not reach this code; this plate prints the right line and says nothing more about it.</p></section>
+<section><h2>Plate five: the working invocation</h2><p>There is no program file named after the repo. The run is python3 main.py, then the manifest path, then any options. Once with a text manifest and the default database, and once with a package.json manifest and OSV chosen, using placeholder paths only:</p><pre>python3 main.py path/to/requirements.txt
+python3 main.py path/to/package.json --vulnerability_db osv</pre></section>
+<section><h2>Plate six: the controls in parser order</h2><p>The manifest path comes first, positional and required; a run without it never starts. The licence policy option follows, default MIT, any string accepted, none of them acted on. The database option follows, choices nvd and osv, default nvd. The output option closes the list: give a path and the report is written there with a short confirmation printed, or omit it and the report prints to the terminal.</p></section>
+<section><h2>Plate seven: parsing</h2><p>Text manifests are read line by line; blank lines and comment lines pass by; each remaining line is parsed as a requirement specifier, and a line that will not parse draws a warning and is skipped. The stored version is the specifier text, not a resolved version. A package.json contributes both its dependencies and its devDependencies, tagged as npm, while text manifest entries are tagged as PyPI.</p></section>
+<section><h2>Plate eight: the pinned version gate</h2><p><span class="tag">Pinned Versions or Nothing</span></p><p>Both databases answer questions about one concrete version, so only a pinned entry is ever queried: a single double equals pin in a text manifest, or a bare version in package.json. Anything looser is skipped with a warning, and a skipped entry counts as neither a success nor a failure. One trimming quirk stands on its own: a wildcard pin is trimmed down to its base figures and then queried as if the manifest had pinned exactly that version, which narrows a range without saying so anywhere else.</p></section>
+<section><h2>Plate nine: the NVD route</h2><p>The query is a keyword search on the package name against the NVD 2.0 service, and only the first page of whatever comes back is examined; no later page is ever requested. A returned record counts only when the package name appears inside a CPE criteria string and the version field of that criteria string equals the pinned version exactly. Each surviving record contributes its CVE identifier, its first description text, and its CVSS version 3.1 base score, or a not available marker where that score is absent. A package whose records sit past the first page, or whose criteria spell the name differently, reads as clean. That limit stands here beside the route, not in a footnote.</p></section>
+<section><h2>Plate ten: the OSV route</h2><p>The query is posted with the package name, the pinned version, and the ecosystem taken from the manifest the entry came from, so an npm entry is asked about as npm and a PyPI entry as PyPI. Each returned record contributes its identifier, its summary, its details, and its severity entry, or a not available marker.</p></section>
+<section><h2>Plate eleven: the report and the exits</h2><p><span class="tag">A Clean Line Must Be Earned</span></p><p>With matches, the report names each package with its stored version text, then lists identifier, description, and severity per match. With no matches, the report says no vulnerabilities were found, and appends a warning counting failed checks when any check failed. If no manifest entry was parsed at all, the run prints that no dependencies were parsed or found to check, and exits 1 without printing the clean line. If entries were parsed but no check completed, because every query failed or every version was skipped, the run still prints or saves its report and then exits 1, refusing to let a clean sounding page stand as a result. A failed attempt to write the output file falls back to printing the report to the terminal. Missing files, an unsupported manifest suffix, and other errors also exit 1.</p></section>
+<section><h2>Final plate: licence</h2><p>The code is offered under the MIT License in the repository LICENSE file, whose holder line pairs the public pen name with a shortened form in parentheses and the account handle. The initial in that line is left exactly as short as it was found.</p></section>
+<section><h2>Defects, recorded</h2><p>The install line in the preserved record names a different organisation, and the licence section of the record names that same organisation; both stand verbatim in the record below and are corrected only on plate four. The usage line in the record names an executable form and no such file exists in the repository; the entry point is main.py, as plate five shows. The parameter list in the record omits the required positional manifest path, and gives the three options it lists no descriptions, no defaults, and no choices, though the parser defines all of them. The record licence section names no licence at all, only a copyright line. The repo name itself promises a licence checker, and no licence checking exists in the code.</p></section>
+<section><h2>The preserved README record</h2><pre>
+# dep-vuln-DependencyLicenseChecker
+A command-line tool that analyzes project dependencies and checks them for known vulnerabilities in the NVD or OSV databases. The --license_policy option is accepted but not evaluated: the code has no license data source, a warning is printed on every run, and the report covers vulnerabilities only. - Focused on Maps declared software dependencies in project manifest files (e.g., requirements.txt, package.json) to known vulnerabilities in public databases (e.g., NIST NVD, OSV). Generates a report detailing vulnerable dependencies and suggested remediation steps, such as updating to patched versions. Supports multiple dependency file formats and vulnerability data sources.
 
-<main>
-  <section class="rail">
-    <nav aria-label="on this page">
-      <p class="mono"><a href="#run">Run it</a><br>
-      <a href="#files">The files</a><br>
-      <a href="#sheets">The sheets</a><br>
-      <a href="https://github.com/ShadowGuard-AI/dep-vuln-dependencylicensechecker">The repo</a></p>
-    </nav>
-    <div>
-      <p class="lede">Note on versions: dependency entries are stored as requirement specifiers. The OSV check needs one concrete version, so only a pinned entry (a single == version, or a bare version in package.json) is queried; a range is skipped with a warning. The NVD check matches on the specifier text as before.</p>
-      <div class="grid">
-        <div class="card pop"><h3>What it is</h3>
-          <p>Dep Vuln Dependencylicensechecker: 5 files, 351 counted
-          lines across Python 328, Markdown 21, Text 2. One job, done in the
-          open, in files you can read.</p></div>
-        <div class="card pop"><h3>The biggest piece</h3>
-          <p><code>main.py</code> carries the most
-          lines. If the project grows, that file is where the growth
-          lands first, for better or worse.</p></div>
-        <div class="card pop"><h3>The honest gap</h3>
-          <p>No test files yet. That is the honest gap, and the roadmap in the visuals folder says what the first one should cover.</p></div>
-      </div>
-      <section id="run">
-        <h2>Run it</h2>
-        <p>The repo README has the exact commands for this one. The
-        shape is the shape for most of my projects: clone it, read the
-        top file first so you know what will happen, then run it on
-        something you do not mind breaking.</p>
-        <p class="mono">$ git clone https://github.com/ShadowGuard-AI/dep-vuln-dependencylicensechecker.git<br>$ cd dep-vuln-dependencylicensechecker</p>
-      </section>
-      
-  <section aria-label="real code">
-    <h2>The code, as it sits in the repo</h2>
-    <p>From <code>main.py</code>, line 15 on. I did
-    not tidy it for the page. What you see is what the file has.</p>
-    <pre class="code"><code>
+Note on versions: dependency entries are stored as requirement specifiers. Both checks need one concrete version, so only a pinned entry (a single == version, or a bare version in package.json) is queried; a range is skipped with a warning. The NVD check compares that concrete version to the version field of the CPE criteria in the response.
 
-class UnpinnedVersionError(Exception):
-    &quot;&quot;&quot;Raised when a dependency has no exact version an OSV query can use.&quot;&quot;&quot;
+Note on empty manifests: if no dependencies are parsed or found to check (an empty requirements file, a file whose lines do not parse, or a package.json with no dependency keys), the run prints "No dependencies were parsed/found to check." and exits 1. It does not print the clean line. The clean line and exit 0 are reserved for runs that completed at least one check.
 
-class DependencyVulnerabilityChecker:
-    &quot;&quot;&quot;
-    A tool to analyze project dependencies, identify vulnerabilities, and flag license incompatibilities.
-    &quot;&quot;&quot;
+## Install
+`git clone https://github.com/ShadowStrikeHQ/dep-vuln-dependencylicensechecker`
 
-    def __init__(self, dependency_file: str, license_policy: str, vulnerability_db: str):
-        &quot;&quot;&quot;
-        Initializes the DependencyVulnerabilityChecker.
+## Usage
+`./dep-vuln-dependencylicensechecker [params]`
 
-        Args:
-            dependency_file: Path to the dependency file (e.g., requirements.txt, package.json).
-            license_policy: License policy to enforce (e.g., &quot;MIT&quot;, &quot;GPL-2.0-or-later&quot;).
-            vulnerability_db: Source of vulnerability data (e.g., &quot;nvd&quot;, &quot;osv&quot;).
-        &quot;&quot;&quot;
-        self.dependency_file = dependency_file
-        self.license_policy = license_policy
-        self.vulnerability_db = vulnerability_db</code></pre>
-  </section>
-      <section id="files">
-        <h2>The files that matter</h2>
-        <table><tr><th>File</th><th>Lines</th></tr>
-        <tr><td><code>main.py</code></td><td>328</td></tr>
-        <tr><td><code>README.md</code></td><td>21</td></tr>
-        <tr><td><code>requirements.txt</code></td><td>2</td></tr>
-        <tr><td><code>banner.png</code></td><td>0</td></tr>
-        <tr><td><code>logo.png</code></td><td>0</td></tr>
-        </table>
-        <p>Names doing the work: <span class="mono">UnpinnedVersionError, DependencyVulnerabilityChecker, setup_argparse, main, __init__, load_dependencies, check_vulnerabilities, _check_vulnerabilities_nvd</span>.</p>
-      </section>
-      <section id="sheets">
-        <h2>Drawn by hand</h2>
-        <p>I sketch my projects on notebook paper so I have to
-        understand them well enough to draw them. The full set,
-        with the counts and how they were counted, is the
-        <a href="https://github.com/ShadowGuard-AI/dep-vuln-dependencylicensechecker/tree/main/dep-vuln-dependencylicensechecker-Visuals">dep-vuln-dependencylicensechecker-Visuals</a>
-        folder in the repo. Nothing is drawn over the binder holes.
-        That is a rule, not a style.</p>
-        <div class="shots">
-          <img src="assets/architecture.png" alt="Hand drawn architecture sheet for Dep Vuln Dependencylicensechecker">
-          <img src="assets/flowchart.png" alt="Hand drawn flowchart sheet for Dep Vuln Dependencylicensechecker">
-          <img src="assets/product-map.png" alt="Hand drawn product map sheet for Dep Vuln Dependencylicensechecker">
-        </div>
-      </section>
-    </div>
-  </section>
-</main>
-<footer>
-  <p>Dep Vuln Dependencylicensechecker is one of my projects. This page was written
-  from the repo itself on 2026-10-30: the counts are the
-  repo's counts, the code is the repo's code, and the gaps are the
-  repo's gaps.</p>
-</footer>
-</body>
-</html>
+## Parameters
+- `-h`: Show help message and exit
+- `--license_policy`: No description provided
+- `--vulnerability_db`: No description provided
+- `--output`: No description provided
+
+## License
+Copyright (c) ShadowStrikeHQ</pre></section>
+</main></body></html>
